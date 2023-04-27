@@ -115,6 +115,10 @@ class CSGDifference(geometry.Geometry):
         self.geom1 = geom1
         self.geom2 = geom2
 
+    @property
+    def perimeter(self):
+        return self.geom1.perimeter + self.geom2.perimeter
+
     def inside(self, x):
         return np.logical_and(self.geom1.inside(x), ~self.geom2.inside(x))
 
@@ -148,11 +152,31 @@ class CSGDifference(geometry.Geometry):
             i += len(tmp)
         return x
 
+    # TODO: Test and implement for other CSG.
+    def uniform_boundary_points(self, n):
+        total_perimeter = self.perimeter
+        test_n = n
+        while True:
+            points1 = self.geom1.uniform_boundary_points(
+                int(np.ceil(test_n * self.geom1.perimeter / total_perimeter))
+            )
+            points2 = self.geom2.uniform_boundary_points(
+                int(np.floor(test_n * self.geom2.perimeter / total_perimeter))
+            )
+            tmp = np.vstack([points1, points2])
+            points = tmp[self.on_boundary(tmp)]
+
+            if len(points) > n:
+                test_n = test_n / 2
+            elif len(points) < n:
+                test_n = test_n * 2
+            else:
+                return points
+
     def random_boundary_points(self, n, random="pseudo"):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
             geom1_boundary_points = geom1_boundary_points[
                 ~self.geom2.inside(geom1_boundary_points)
@@ -241,7 +265,6 @@ class CSGIntersection(geometry.Geometry):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
             geom1_boundary_points = geom1_boundary_points[
                 self.geom2.inside(geom1_boundary_points)

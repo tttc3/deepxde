@@ -10,6 +10,10 @@ class Geometry(abc.ABC):
         self.diam = min(diam, np.linalg.norm(bbox[1] - bbox[0]))
         self.idstr = type(self).__name__
 
+    @abc.abstractproperty
+    def perimeter(self):
+        """The perimeter/hypersurface-area of the geometry."""
+
     @abc.abstractmethod
     def inside(self, x):
         """Check if x is inside the geometry (including the boundary)."""

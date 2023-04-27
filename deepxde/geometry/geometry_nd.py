@@ -26,6 +26,13 @@ class Hypercube(Geometry):
         )
         self.volume = np.prod(self.side_length)
 
+    @property
+    def perimeter(self):
+        n = self.dim
+        m = n - 1
+        number_of_hyper_surfaces = np.math.factorial(n) / np.math.factorial(m)
+        return 2 ** (n - m) * number_of_hyper_surfaces * self.side_length[0] ** m
+
     def inside(self, x):
         return np.logical_and(
             np.all(x >= self.xmin, axis=-1), np.all(x <= self.xmax, axis=-1)
@@ -109,6 +116,11 @@ class Hypersphere(Geometry):
         )
 
         self._r2 = radius**2
+
+    @property
+    def perimeter(self):
+        n = self.dim
+        return 2 * np.pi ** (n / 2) / np.math.gamma(n / 2) * self.radius ** (n - 1)
 
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius

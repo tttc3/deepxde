@@ -11,6 +11,10 @@ class Interval(Geometry):
         super().__init__(1, (np.array([l]), np.array([r])), r - l)
         self.l, self.r = l, r
 
+    @property
+    def perimeter(self):
+        return np.abs(self.r - self.l)
+
     def inside(self, x):
         return np.logical_and(self.l <= x, x <= self.r).flatten()
 

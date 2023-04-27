@@ -18,6 +18,10 @@ class Disk(Geometry):
 
         self._r2 = radius**2
 
+    @property
+    def perimeter(self):
+        return 2 * np.pi * self.radius
+
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
@@ -120,6 +124,10 @@ class Ellipse(Geometry):
             2, (self.center - semimajor, self.center + semiminor), 2 * self.c
         )
 
+    @property
+    def perimeter(self):
+        return self._ellipse_arc()[-1]
+
     def on_boundary(self, x):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
         d2 = np.linalg.norm(x - self.focus2, axis=-1)
@@ -189,7 +197,6 @@ class Rectangle(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
-        self.perimeter = 2 * np.sum(self.xmax - self.xmin)
         self.area = np.prod(self.xmax - self.xmin)
 
     def uniform_boundary_points(self, n):
@@ -294,7 +301,6 @@ class Triangle(Geometry):
         self.n12_normal = clockwise_rotation_90(self.n12)
         self.n23_normal = clockwise_rotation_90(self.n23)
         self.n31_normal = clockwise_rotation_90(self.n31)
-        self.perimeter = self.l12 + self.l23 + self.l31
 
         super().__init__(
             2,
@@ -310,6 +316,10 @@ class Triangle(Geometry):
             )
             ** 0.5,
         )
+
+    @property
+    def perimeter(self):
+        return self.l12 + self.l23 + self.l31
 
     def inside(self, x):
         # https://stackoverflow.com/a/2049593/12679294
@@ -446,9 +456,6 @@ class Polygon(Geometry):
             np.max(self.diagonals),
         )
         self.nvertices = len(self.vertices)
-        self.perimeter = np.sum(
-            [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
-        )
         self.bbox = np.array(
             [np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)]
         )
@@ -457,6 +464,12 @@ class Polygon(Geometry):
         self.segments = np.vstack((self.vertices[0] - self.vertices[-1], self.segments))
         self.normal = clockwise_rotation_90(self.segments.T).T
         self.normal = self.normal / np.linalg.norm(self.normal, axis=1).reshape(-1, 1)
+
+    @property
+    def perimeter(self):
+        return np.sum(
+            [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
+        )
 
     def inside(self, x):
         def wn_PnPoly(P, V):
