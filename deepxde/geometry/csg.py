@@ -155,23 +155,15 @@ class CSGDifference(geometry.Geometry):
     # TODO: Test and implement for other CSG.
     def uniform_boundary_points(self, n):
         total_perimeter = self.perimeter
-        test_n = n
-        while True:
-            points1 = self.geom1.uniform_boundary_points(
-                int(np.ceil(test_n * self.geom1.perimeter / total_perimeter))
-            )
-            points2 = self.geom2.uniform_boundary_points(
-                int(np.floor(test_n * self.geom2.perimeter / total_perimeter))
-            )
-            tmp = np.vstack([points1, points2])
-            points = tmp[self.on_boundary(tmp)]
-
-            if len(points) > n:
-                test_n = test_n / 2
-            elif len(points) < n:
-                test_n = test_n * 2
-            else:
-                return points
+        points1 = self.geom1.uniform_boundary_points(
+            int(np.ceil(n * self.geom1.perimeter / total_perimeter))
+        )
+        points2 = self.geom2.uniform_boundary_points(
+            int(np.floor(n * self.geom2.perimeter / total_perimeter))
+        )
+        tmp = np.vstack([points1, points2])
+        points = tmp[self.on_boundary(tmp)]
+        return points
 
     def random_boundary_points(self, n, random="pseudo"):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
