@@ -18,20 +18,32 @@ class Cuboid(Hypercube):
         dx = self.xmax - self.xmin
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
         pts = []
         density = n / self.area
         rect = Rectangle(self.xmin[:-1], self.xmax[:-1])
         for z in [self.xmin[-1], self.xmax[-1]]:
-            u = rect.random_points(int(np.ceil(density * rect.area)), random=random)
+            u = rect.random_points(
+                int(np.ceil(density * rect.area)),
+                random=random,
+                random_state=random_state,
+            )
             pts.append(np.hstack((u, np.full((len(u), 1), z))))
         rect = Rectangle(self.xmin[::2], self.xmax[::2])
         for y in [self.xmin[1], self.xmax[1]]:
-            u = rect.random_points(int(np.ceil(density * rect.area)), random=random)
+            u = rect.random_points(
+                int(np.ceil(density * rect.area)),
+                random=random,
+                random_state=random_state,
+            )
             pts.append(np.hstack((u[:, 0:1], np.full((len(u), 1), y), u[:, 1:])))
         rect = Rectangle(self.xmin[1:], self.xmax[1:])
         for x in [self.xmin[0], self.xmax[0]]:
-            u = rect.random_points(int(np.ceil(density * rect.area)), random=random)
+            u = rect.random_points(
+                int(np.ceil(density * rect.area)),
+                random=random,
+                random_state=random_state,
+            )
             pts.append(np.hstack((np.full((len(u), 1), x), u)))
         pts = np.vstack(pts)
         if len(pts) > n:

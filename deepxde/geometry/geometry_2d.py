@@ -48,9 +48,9 @@ class Disk(Geometry):
         _n = _n / l * isclose(l, self.radius)
         return _n
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n, random="pseudo", random_state=None):
         # http://mathworld.wolfram.com/DiskPointPicking.html
-        rng = sample(n, 2, random)
+        rng = sample(n, 2, random, random_state)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = np.cos(theta), np.sin(theta)
         return self.radius * (np.sqrt(r) * np.vstack((x, y))).T + self.center
@@ -60,8 +60,8 @@ class Disk(Geometry):
         X = np.vstack((np.cos(theta), np.sin(theta))).T
         return self.radius * X + self.center
 
-    def random_boundary_points(self, n, random="pseudo"):
-        u = sample(n, 1, random)
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
+        u = sample(n, 1, random, random_state)
         theta = 2 * np.pi * u
         X = np.hstack((np.cos(theta), np.sin(theta)))
         return self.radius * X + self.center
@@ -160,15 +160,16 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
+
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
 
         return f, total_arc
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n, random="pseudo", random_state=None):
         # http://mathworld.wolfram.com/DiskPointPicking.html
-        rng = sample(n, 2, random)
+        rng = sample(n, 2, random, random_state)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)
         X = np.sqrt(r) * np.vstack((x, y))
@@ -181,8 +182,8 @@ class Ellipse(Geometry):
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
-    def random_boundary_points(self, n, random="pseudo"):
-        u = sample(n, 1, random)
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
+        u = sample(n, 1, random, random_state)
         theta = self.theta_from_arc_length(u * self.total_arc)
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
@@ -406,8 +407,8 @@ class Triangle(Geometry):
             )
         return x
 
-    def random_boundary_points(self, n, random="pseudo"):
-        u = np.ravel(sample(n + 2, 1, random))
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
+        u = np.ravel(sample(n + 2, 1, random, random_state))
         # Remove the possible points very close to the corners
         u = u[np.logical_not(isclose(u, self.l12 / self.perimeter))]
         u = u[np.logical_not(isclose(u, (self.l12 + self.l23) / self.perimeter))]
@@ -467,9 +468,7 @@ class Polygon(Geometry):
 
     @property
     def perimeter(self):
-        return np.sum(
-            [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
-        )
+        return np.sum([self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)])
 
     def inside(self, x):
         def wn_PnPoly(P, V):
@@ -560,8 +559,8 @@ class Polygon(Geometry):
             )
         return x
 
-    def random_boundary_points(self, n, random="pseudo"):
-        u = np.ravel(sample(n + self.nvertices, 1, random))
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
+        u = np.ravel(sample(n + self.nvertices, 1, random, random_state))
         # Remove the possible points very close to the corners
         l = 0
         for i in range(0, self.nvertices - 1):

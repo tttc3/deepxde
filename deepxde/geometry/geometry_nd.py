@@ -86,12 +86,12 @@ class Hypercube(Geometry):
             )
         return x
 
-    def random_points(self, n, random="pseudo"):
-        x = sample(n, self.dim, random)
+    def random_points(self, n, random="pseudo", random_state=None):
+        x = sample(n, self.dim, random, random_state)
         return (self.xmax - self.xmin) * x + self.xmin
 
-    def random_boundary_points(self, n, random="pseudo"):
-        x = sample(n, self.dim, random)
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
+        x = sample(n, self.dim, random, random_state)
         # Randomly pick a dimension
         rand_dim = np.random.randint(self.dim, size=n)
         # Replace value of the randomly picked dimension with the nearest boundary value (0 or 1)
@@ -148,25 +148,27 @@ class Hypersphere(Geometry):
         _n = _n / l * isclose(l, self.radius)
         return _n
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n, random="pseudo", random_state=None):
         # https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         if random == "pseudo":
             U = np.random.rand(n, 1).astype(config.real(np))
             X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
-            rng = sample(n, self.dim + 1, random)
+            rng = sample(n, self.dim + 1, random, random_state)
             U, X = rng[:, 0:1], rng[:, 1:]  # Error if X = [0, 0, ...]
             X = stats.norm.ppf(X).astype(config.real(np))
         X = preprocessing.normalize(X)
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
         # http://mathworld.wolfram.com/HyperspherePointPicking.html
         if random == "pseudo":
             X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
-            U = sample(n, self.dim, random)  # Error for [0, 0, ...] or [0.5, 0.5, ...]
+            U = sample(
+                n, self.dim, random, random_state
+            )  # Error for [0, 0, ...] or [0.5, 0.5, ...]
             X = stats.norm.ppf(U).astype(config.real(np))
         X = preprocessing.normalize(X)
         return self.radius * X + self.center

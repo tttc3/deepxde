@@ -49,8 +49,8 @@ class Interval(Geometry):
             ]
         return np.exp(x) - eps
 
-    def random_points(self, n, random="pseudo"):
-        x = sample(n, 1, random)
+    def random_points(self, n, random="pseudo", random_state=None):
+        x = sample(n, 1, random, random_state)
         return (self.diam * x + self.l).astype(config.real(np))
 
     def uniform_boundary_points(self, n):

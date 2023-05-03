@@ -6,7 +6,7 @@ import skopt
 from .. import config
 
 
-def sample(n_samples, dimension, sampler="pseudo", seed=None):
+def sample(n_samples, dimension, sampler="pseudo", random_state=None):
     """Generate pseudorandom or quasirandom samples in [0, 1]^dimension.
 
     Args:
@@ -19,7 +19,7 @@ def sample(n_samples, dimension, sampler="pseudo", seed=None):
     if sampler == "pseudo":
         return pseudorandom(n_samples, dimension)
     if sampler in ["LHS", "Halton", "Hammersley", "Sobol"]:
-        return quasirandom(n_samples, dimension, sampler, seed)
+        return quasirandom(n_samples, dimension, sampler, random_state)
     raise ValueError("f{sampler} sampling is not available.")
 
 
