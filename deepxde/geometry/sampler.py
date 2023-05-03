@@ -6,7 +6,7 @@ import skopt
 from .. import config
 
 
-def sample(n_samples, dimension, sampler="pseudo"):
+def sample(n_samples, dimension, sampler="pseudo", seed=None):
     """Generate pseudorandom or quasirandom samples in [0, 1]^dimension.
 
     Args:
@@ -19,7 +19,7 @@ def sample(n_samples, dimension, sampler="pseudo"):
     if sampler == "pseudo":
         return pseudorandom(n_samples, dimension)
     if sampler in ["LHS", "Halton", "Hammersley", "Sobol"]:
-        return quasirandom(n_samples, dimension, sampler)
+        return quasirandom(n_samples, dimension, sampler, seed)
     raise ValueError("f{sampler} sampling is not available.")
 
 
@@ -32,7 +32,7 @@ def pseudorandom(n_samples, dimension):
     return np.random.random(size=(n_samples, dimension)).astype(config.real(np))
 
 
-def quasirandom(n_samples, dimension, sampler):
+def quasirandom(n_samples, dimension, sampler, random_state=None):
     # Certain points should be removed:
     # - Boundary points such as [..., 0, ...]
     # - Special points [0, 0, 0, ...] and [0.5, 0.5, 0.5, ...], which cause error in
@@ -59,5 +59,6 @@ def quasirandom(n_samples, dimension, sampler):
             skip = 2
     space = [(0.0, 1.0)] * dimension
     return np.asarray(
-        sampler.generate(space, n_samples + skip)[skip:], dtype=config.real(np)
+        sampler.generate(space, n_samples + skip, random_state)[skip:],
+        dtype=config.real(np),
     )
