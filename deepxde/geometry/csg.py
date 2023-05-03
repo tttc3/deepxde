@@ -61,16 +61,20 @@ class CSGUnion(geometry.Geometry):
             i += len(tmp)
         return x
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = self.geom1.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom1_boundary_points = geom1_boundary_points[
                 ~self.geom2.inside(geom1_boundary_points)
             ]
 
-            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = self.geom2.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom2_boundary_points = geom2_boundary_points[
                 ~self.geom1.inside(geom2_boundary_points)
             ]
@@ -139,11 +143,11 @@ class CSGDifference(geometry.Geometry):
             x
         )
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n, random="pseudo", random_state=None):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-            tmp = self.geom1.random_points(n, random=random)
+            tmp = self.geom1.random_points(n, random=random, random_state=random_state)
             tmp = tmp[~self.geom2.inside(tmp)]
 
             if len(tmp) > n - i:
@@ -165,16 +169,20 @@ class CSGDifference(geometry.Geometry):
         points = tmp[self.on_boundary(tmp)]
         return points
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = self.geom1.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom1_boundary_points = geom1_boundary_points[
                 ~self.geom2.inside(geom1_boundary_points)
             ]
 
-            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = self.geom2.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom2_boundary_points = geom2_boundary_points[
                 self.geom1.inside(geom2_boundary_points)
             ]
@@ -240,11 +248,11 @@ class CSGIntersection(geometry.Geometry):
             x
         )
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n, random="pseudo", random_state=None):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-            tmp = self.geom1.random_points(n, random=random)
+            tmp = self.geom1.random_points(n, random=random, random_state=random_state)
             tmp = tmp[self.geom2.inside(tmp)]
 
             if len(tmp) > n - i:
@@ -253,16 +261,20 @@ class CSGIntersection(geometry.Geometry):
             i += len(tmp)
         return x
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", random_state=None):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = self.geom1.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom1_boundary_points = geom1_boundary_points[
                 self.geom2.inside(geom1_boundary_points)
             ]
 
-            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = self.geom2.random_boundary_points(
+                n, random=random, random_state=random_state
+            )
             geom2_boundary_points = geom2_boundary_points[
                 self.geom1.inside(geom2_boundary_points)
             ]
